@@ -1,0 +1,9 @@
+# Save as ./gluetun/auth/config.toml, then restart Gluetun.
+# Put the same key in Gluetun AutoSwitch's "Gluetun API key" setting.
+# Keep it private: GET /v1/vpn/settings returns your VPN private key.
+
+[[roles]]
+name = "dispatcharr"
+routes = ["GET /v1/vpn/settings", "PUT /v1/vpn/settings"]
+auth = "apikey"
+apikey = "<your-long-random-key>"

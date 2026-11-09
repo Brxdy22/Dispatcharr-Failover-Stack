@@ -1,0 +1,5 @@
+# Real config never goes in this repo
+.env
+upstreams.conf
+config.toml
+vod_canaries.json

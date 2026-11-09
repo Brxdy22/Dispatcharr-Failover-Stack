@@ -1,0 +1,72 @@
+# Gluetun + Dispatcharr + M3U Failover, set up for VOD Failover and Gluetun AutoSwitch.
+# Copy what you need into your own compose file. Every value in <angle brackets> is yours to fill in.
+#
+# Dispatcharr and M3U Failover share Gluetun's network, so:
+#   - all provider traffic goes through the VPN
+#   - Dispatcharr reaches M3U Failover at 127.0.0.1:<port> and Gluetun's control server at 127.0.0.1:8000
+#   - ports for Dispatcharr are published on the gluetun service, not on dispatcharr
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest      # pin a version if you don't want surprise restarts
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 9191:9191/tcp                 # Dispatcharr web UI
+      # Don't publish 8000 (the control server) unless you need it. The plugin reaches it over 127.0.0.1.
+    volumes:
+      - ./gluetun:/gluetun            # auth file goes in ./gluetun/auth/config.toml
+    restart: unless-stopped
+    environment:
+      - VPN_SERVICE_PROVIDER=mullvad  # Gluetun AutoSwitch is built for Mullvad
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=<your-wireguard-private-key>
+      - WIREGUARD_ADDRESSES=<your-wireguard-address>
+      - SERVER_COUNTRIES=<Country>    # starting exit; the plugin moves it from here
+      - HTTP_CONTROL_SERVER_ADDRESS=:8000
+      # Your LAN, so you can reach the UI. Keep this narrow: a wide range such as 172.0.0.0/8
+      # also covers public Cloudflare addresses and sends provider traffic outside the VPN.
+      - FIREWALL_OUTBOUND_SUBNETS=<192.168.1.0/24>
+      - TZ=<Your/Timezone>
+
+  dispatcharr:
+    image: ghcr.io/dispatcharr/dispatcharr:latest
+    container_name: dispatcharr
+    network_mode: "service:gluetun"
+    restart: unless-stopped
+    volumes:
+      - ./dispatcharr:/data           # plugins go in ./dispatcharr/plugins
+      # Gluetun's server list, for Gluetun AutoSwitch's country and city lists
+      - ./gluetun/servers:/gluetun-servers:ro
+    environment:
+      - DISPATCHARR_ENV=aio
+      - REDIS_HOST=localhost
+      - CELERY_BROKER_URL=redis://localhost:6379/0
+      - TZ=<Your/Timezone>
+    depends_on:
+      gluetun:
+        condition: service_healthy
+
+  m3u-failover:
+    image: brxdy22/m3u-failover:1.3   # pin a version; see its Releases for the latest
+    container_name: m3u-failover
+    network_mode: "service:gluetun"
+    restart: unless-stopped
+    environment:
+      - TZ=<Your/Timezone>            # the nightly sort runs in this time zone
+      - CONFIG=/config/upstreams.conf
+      - CONNECT_TIMEOUT=4
+      - HEADER_TIMEOUT=15
+      - SORT_AT=03:00                 # "off" disables the nightly sort
+    volumes:
+      - ./m3u-failover:/config        # holds upstreams.conf; writable, the nightly sort rewrites it
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    user: "1000:1000"                 # must be able to write to ./m3u-failover
+    depends_on:
+      gluetun:
+        condition: service_healthy
