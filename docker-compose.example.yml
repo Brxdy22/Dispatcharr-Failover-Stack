@@ -1,4 +1,4 @@
-# Gluetun + Dispatcharr + M3U Failover, set up for VOD Failover and Gluetun AutoSwitch.
+# Gluetun + Dispatcharr + M3U Failover, set up for Failover Manager and Gluetun AutoSwitch.
 # Copy what you need into your own compose file. Every value in <angle brackets> is yours to fill in.
 #
 # Dispatcharr and M3U Failover share Gluetun's network, so:
