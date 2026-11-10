@@ -16,7 +16,7 @@ This repo holds only instructions and examples. Each project is installed from i
 
 | Dispatcharr | M3U Failover | Failover Manager | Gluetun AutoSwitch |
 |---|---|---|---|
-| 0.33.0 | 1.3.1 | 1.6 | 1.8.4.2 |
+| 0.33.0 | 1.3.1.1 | 1.6 | 1.8.4.2 |
 
 ## What needs what
 
@@ -94,7 +94,7 @@ docker exec m3u-failover python /app/failover.py --status
 ## Updating
 
 - Update **M3U Failover first**, then the plugins. Newer plugins call proxy routes that older proxies would forward to your provider.
-- M3U Failover: change the image tag and run `docker compose up -d --no-deps m3u-failover`.
+- M3U Failover: run `docker compose pull m3u-failover && docker compose up -d --no-deps m3u-failover` (or change the version tag if you pinned one).
 - Plugins: import the new release zip on the Plugins page. Check the hook status after any Dispatcharr update, because Failover Manager patches Dispatcharr's internal VOD functions.
 - Use `--no-deps` when redeploying one service. Without it, Compose may recreate Gluetun too, which drops every stream.
 
