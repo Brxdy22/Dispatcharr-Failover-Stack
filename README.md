@@ -104,6 +104,11 @@ docker exec m3u-failover python /app/failover.py --status
 - M3U Failover has no login, so keep it on `127.0.0.1`.
 - Don't publish Gluetun's control server port unless you need it.
 
+## More by Brxdy22
+
+- [Clean Titles](https://github.com/Brxdy22/Dispatcharr-Clean-Titles-Plugin): Renames VOD movies and series to their official TMDB titles and tidies provider categories.
+- [Teamarr Assistant](https://github.com/Brxdy22/Dispatcharr-Teamarr-Assistant-Plugin): Tags regional sports networks with their teams and starts Teamarr generations when new streams appear.
+
 ## Licence
 
 MIT
