@@ -16,7 +16,7 @@ This repo holds only instructions and examples. Each project is installed from i
 
 | Dispatcharr | M3U Failover | VOD Failover | Gluetun AutoSwitch |
 |---|---|---|---|
-| 0.33.0 | 1.3 | 1.5 | 1.8.4.1 |
+| 0.33.0 | 1.3.1 | 1.5 | 1.8.4.1 |
 
 ## What needs what
 
